@@ -23,10 +23,21 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
   const response = await fetch(`${API_URL}${path}`, { ...init, headers });
-  const data = (await response.json().catch(() => ({}))) as T & { message?: string | string[] };
+  const data = (await response.json().catch(() => ({}))) as T & {
+    message?: string | string[] | { message?: string; slug?: string };
+    slug?: string;
+  };
   if (!response.ok) {
-    const message = Array.isArray(data.message) ? data.message.join(" ") : data.message;
-    throw new Error(message || `요청 실패 (${response.status})`);
+    const raw = data.message;
+    const message =
+      typeof raw === "string"
+        ? raw
+        : Array.isArray(raw)
+          ? raw.join(" ")
+          : raw?.message;
+    const error = new Error(message || `요청 실패 (${response.status})`) as Error & { slug?: string };
+    error.slug = data.slug ?? (typeof raw === "object" && !Array.isArray(raw) ? raw?.slug : undefined);
+    throw error;
   }
   return data;
 }
