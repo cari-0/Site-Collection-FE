@@ -40,7 +40,7 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <Link href={`/sites/${site.slug}`} className="block">
+          <Link href={`/sites/${encodeURIComponent(site.slug)}`} className="block">
             <p className="text-xs text-muted">
               {site.category}
               {tags.length > 0 ? ` · ${tags.map((tag) => `#${tag}`).join(" ")}` : ""}
@@ -51,7 +51,7 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
           <a
             href={site.url}
             target="_blank"
-            rel="noopener noreferrer"
+            rel={ad ? "noopener sponsored" : "noopener noreferrer"}
             className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm font-medium text-point sm:w-auto"
           >
             바로가기
