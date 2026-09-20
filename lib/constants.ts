@@ -1,0 +1,9 @@
+export const SITE_NAME = "유사모";
+export const SITE_TAGLINE = "유익한 사이트 모음";
+export const PAGE_SIZE = 30;
+export const MAX_ADS_PER_KEYWORD = 3;
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const SUBMIT_RATE_LIMIT = { max: 5, windowMs: 10 * 60 * 1000 };
+export const AD_RATE_LIMIT = { max: 3, windowMs: 10 * 60 * 1000 };
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
