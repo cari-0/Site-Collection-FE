@@ -24,7 +24,11 @@ export function SearchForm({ size = "header", defaultValue = "" }: SearchFormPro
   return (
     <form
       onSubmit={onSubmit}
-      className={`flex w-full gap-2 ${isHero ? "max-w-[560px]" : "max-w-[360px]"}`}
+      className={
+        isHero
+          ? "mx-auto flex h-[52px] w-full max-w-[560px] items-center rounded-full border border-line bg-surface pl-5 pr-1.5"
+          : "flex h-10 w-full max-w-[360px] items-center rounded-lg border border-line bg-surface pl-3 pr-1"
+      }
     >
       <label className="sr-only" htmlFor={`search-${size}`}>
         검색어
@@ -35,14 +39,14 @@ export function SearchForm({ size = "header", defaultValue = "" }: SearchFormPro
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="찾고 싶은 사이트를 검색하세요"
-        className={`min-w-0 flex-1 border border-line bg-surface px-4 text-foreground placeholder:text-muted ${
-          isHero ? "h-12 rounded-full text-base" : "h-10 rounded-lg text-sm"
+        className={`min-w-0 flex-1 border-0 bg-transparent text-foreground outline-none placeholder:text-muted ${
+          isHero ? "text-base" : "text-sm"
         }`}
       />
       <button
         type="submit"
         className={`shrink-0 bg-point font-medium text-white transition-opacity duration-150 hover:opacity-90 ${
-          isHero ? "h-12 rounded-full px-5" : "h-10 rounded-lg px-4 text-sm"
+          isHero ? "h-10 rounded-full px-5" : "h-8 rounded-md px-3 text-sm"
         }`}
       >
         검색

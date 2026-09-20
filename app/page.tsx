@@ -13,21 +13,25 @@ export default function HomePage() {
     <section className="mx-auto flex max-w-[720px] flex-col items-center pt-10 text-center">
       <h1 className="text-4xl font-semibold tracking-tight">{SITE_NAME}</h1>
       <p className="mt-3 text-muted">{SITE_TAGLINE}</p>
-      <div className="mt-8 w-full">
+      <div className="mt-8 flex w-full justify-center">
         <SearchForm size="hero" />
       </div>
-      <ul className="mt-8 flex flex-wrap justify-center gap-2">
-        {featuredKeywords.map((keyword) => (
-          <li key={keyword.slug}>
-            <Link
-              href={`/k/${encodeURIComponent(keyword.slug)}`}
-              className="inline-flex h-9 items-center rounded-full border border-line bg-surface px-3 text-sm hover:border-point hover:text-point"
-            >
-              {keyword.name}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-12 w-full">
+        <h2 className="text-[13px] font-medium tracking-wide text-muted">지금 많이 찾는</h2>
+        <ol className="mt-3 flex flex-wrap justify-center gap-2">
+          {featuredKeywords.map((keyword, index) => (
+            <li key={keyword.slug}>
+              <Link
+                href={`/k/${encodeURIComponent(keyword.slug)}`}
+                className="inline-flex h-9 items-center rounded-full border border-line bg-surface px-3.5 text-sm hover:border-point hover:text-point"
+              >
+                <span className="mr-2 tabular-nums font-semibold text-point">{index + 1}</span>
+                {keyword.name}
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   );
 }
