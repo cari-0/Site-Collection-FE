@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeartButton } from "@/components/site/heart-button";
 
 export type SiteCardData = {
   slug: string;
@@ -8,6 +9,7 @@ export type SiteCardData = {
   category?: string;
   tags?: string[];
   imageUrl?: string | null;
+  heartCount?: number;
 };
 
 type SiteCardProps = {
@@ -31,13 +33,18 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
         </span>
       ) : null}
       <div className="flex gap-4">
-        <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-point/10 text-xl font-semibold text-point sm:h-24 sm:w-24">
-          {site.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={site.imageUrl} alt="" className="h-full w-full object-cover" />
-          ) : (
-            initial
-          )}
+        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg bg-point/10 sm:h-24 sm:w-24">
+          <div className="flex h-full w-full items-center justify-center text-xl font-semibold text-point">
+            {site.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={site.imageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initial
+            )}
+          </div>
+          <div className="absolute right-1 bottom-1">
+            <HeartButton slug={site.slug} compact />
+          </div>
         </div>
         <div className="min-w-0 flex-1">
           <Link href={`/sites/${encodeURIComponent(site.slug)}`} className="block">

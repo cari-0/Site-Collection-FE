@@ -1,13 +1,26 @@
+import { HeartButton } from "@/components/site/heart-button";
+
 type SiteDetailProps = {
+  slug: string;
   name: string;
   description: string;
   url: string;
   category?: string;
   tags?: string[];
   features?: string[];
+  heartCount?: number;
 };
 
-export function SiteDetail({ name, description, url, category, tags = [], features = [] }: SiteDetailProps) {
+export function SiteDetail({
+  slug,
+  name,
+  description,
+  url,
+  category,
+  tags = [],
+  features = [],
+  heartCount = 0,
+}: SiteDetailProps) {
   return (
     <article className="space-y-6">
       <header>
@@ -25,14 +38,17 @@ export function SiteDetail({ name, description, url, category, tags = [], featur
       {tags.length > 0 ? (
         <p className="text-sm text-muted">{tags.map((tag) => `#${tag}`).join(" ")}</p>
       ) : null}
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex h-11 items-center rounded-lg bg-point px-5 font-medium text-white"
-      >
-        사이트로 이동
-      </a>
+      <div className="flex flex-wrap items-center gap-3">
+        <HeartButton slug={slug} initialCount={heartCount} showCount />
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-11 items-center rounded-lg bg-point px-5 font-medium text-white"
+        >
+          사이트로 이동
+        </a>
+      </div>
     </article>
   );
 }

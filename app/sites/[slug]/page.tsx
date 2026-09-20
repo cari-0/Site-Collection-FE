@@ -37,12 +37,14 @@ export default async function SiteDetailPage({ params }: Props) {
   return (
     <div className="mx-auto max-w-[720px] space-y-10">
       <SiteDetail
+        slug={site.slug}
         name={site.name}
         description={site.description}
         url={site.url}
         category={site.category}
         tags={site.tags}
         features={site.features}
+        heartCount={site.heartCount}
       />
       {site.related && site.related.length > 0 ? (
         <section className="space-y-3">
