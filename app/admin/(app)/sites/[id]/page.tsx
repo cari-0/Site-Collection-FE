@@ -14,6 +14,8 @@ type SiteDetail = {
   tagsText?: string;
   status: string;
   categoryId: string;
+  imageUrl?: string | null;
+  imageKey?: string | null;
 };
 
 export default function AdminEditSitePage({ params }: { params: Promise<{ id: string }> }) {

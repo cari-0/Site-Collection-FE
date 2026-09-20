@@ -30,3 +30,22 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
   return data;
 }
+
+export async function apiUpload(file: File) {
+  const headers = new Headers();
+  const token = getAdminToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const body = new FormData();
+  body.append("file", file);
+  const response = await fetch(`${API_URL}/api/uploads`, { method: "POST", headers, body });
+  const data = (await response.json().catch(() => ({}))) as {
+    imageUrl?: string;
+    imageKey?: string;
+    message?: string | string[];
+  };
+  if (!response.ok) {
+    const message = Array.isArray(data.message) ? data.message.join(" ") : data.message;
+    throw new Error(message || "이미지 업로드에 실패했습니다.");
+  }
+  return { imageUrl: data.imageUrl ?? "", imageKey: data.imageKey ?? "" };
+}

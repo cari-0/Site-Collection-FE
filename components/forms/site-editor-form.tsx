@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, apiUpload } from "@/lib/api";
 
 type Category = { id: string; name: string };
 
@@ -16,35 +16,54 @@ type SiteValues = {
   tagsText?: string;
   status?: string;
   categoryId?: string;
+  imageUrl?: string | null;
+  imageKey?: string | null;
 };
 
 export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?: SiteValues }) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
+  const [preview, setPreview] = useState(initial?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    apiFetch<Category[]>("/api/admin/categories").then(setCategories).catch(() => undefined);
-  }, []);
+    apiFetch<Category[]>("/api/admin/categories")
+      .then((rows) => {
+        setCategories(rows);
+        if (initial?.categoryId) setCategoryId(initial.categoryId);
+      })
+      .catch(() => undefined);
+  }, [initial?.categoryId]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setPending(true);
     const form = new FormData(event.currentTarget);
-    const body = {
-      name: String(form.get("name") ?? ""),
-      slug: String(form.get("slug") ?? ""),
-      url: String(form.get("url") ?? ""),
-      description: String(form.get("description") ?? ""),
-      features: String(form.get("features") ?? ""),
-      keywords: String(form.get("keywords") ?? ""),
-      tags: String(form.get("tags") ?? ""),
-      status: String(form.get("status") ?? "published"),
-      categoryId: String(form.get("categoryId") ?? ""),
-    };
+    const file = form.get("image") as File | null;
     try {
+      let imageUrl = String(form.get("imageUrl") ?? initial?.imageUrl ?? "");
+      let imageKey = initial?.imageKey ?? "";
+      if (file && file.size > 0) {
+        const uploaded = await apiUpload(file);
+        imageUrl = uploaded.imageUrl;
+        imageKey = uploaded.imageKey;
+      }
+      const body = {
+        name: String(form.get("name") ?? ""),
+        slug: String(form.get("slug") ?? ""),
+        url: String(form.get("url") ?? ""),
+        description: String(form.get("description") ?? ""),
+        features: String(form.get("features") ?? ""),
+        keywords: String(form.get("keywords") ?? ""),
+        tags: String(form.get("tags") ?? ""),
+        status: String(form.get("status") ?? "published"),
+        categoryId,
+        imageUrl,
+        imageKey,
+      };
       if (siteId) {
         await apiFetch(`/api/admin/sites/${siteId}`, { method: "PATCH", body: JSON.stringify(body) });
       } else {
@@ -78,11 +97,12 @@ export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?:
         <select
           name="categoryId"
           required
-          defaultValue={initial?.categoryId ?? ""}
+          value={categoryId}
+          onChange={(event) => setCategoryId(event.target.value)}
           className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2"
         >
           <option value="" disabled>
-            선택
+            {categories.length === 0 ? "불러오는 중…" : "선택"}
           </option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
@@ -91,6 +111,25 @@ export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?:
           ))}
         </select>
       </label>
+      <div className="space-y-2">
+        <p className="text-sm font-medium">이미지</p>
+        {preview ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={preview} alt="" className="h-24 w-24 rounded-lg border border-line object-cover" />
+        ) : null}
+        <input type="hidden" name="imageUrl" value={preview} />
+        <input
+          name="image"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="block w-full text-sm"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) setPreview(URL.createObjectURL(file));
+          }}
+        />
+        <p className="text-xs text-muted">jpeg, png, webp · 최대 5MB</p>
+      </div>
       <Field label="소개" name="description" required textarea defaultValue={initial?.description} />
       <Field label="특징(줄마다 한 줄)" name="features" textarea defaultValue={initial?.features ?? ""} />
       <Field label="키워드" name="keywords" placeholder="쉼표로 구분" defaultValue={initial?.keywordsText} />
