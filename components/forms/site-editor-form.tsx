@@ -20,7 +20,15 @@ type SiteValues = {
   imageKey?: string | null;
 };
 
-export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?: SiteValues }) {
+export function SiteEditorForm({
+  siteId,
+  initial,
+  submissionId,
+}: {
+  siteId?: string;
+  initial?: SiteValues;
+  submissionId?: string;
+}) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState(initial?.categoryId ?? "");
@@ -53,7 +61,6 @@ export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?:
       }
       const body = {
         name: String(form.get("name") ?? ""),
-        slug: String(form.get("slug") ?? ""),
         url: String(form.get("url") ?? ""),
         description: String(form.get("description") ?? ""),
         features: String(form.get("features") ?? ""),
@@ -63,13 +70,14 @@ export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?:
         categoryId,
         imageUrl,
         imageKey,
+        ...(submissionId ? { submissionId } : {}),
       };
       if (siteId) {
         await apiFetch(`/api/admin/sites/${siteId}`, { method: "PATCH", body: JSON.stringify(body) });
       } else {
         await apiFetch("/api/admin/sites", { method: "POST", body: JSON.stringify(body) });
       }
-      router.push("/admin/sites");
+      router.push(submissionId ? "/admin/submissions" : "/admin/sites");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "저장에 실패했습니다.");
@@ -78,20 +86,10 @@ export function SiteEditorForm({ siteId, initial }: { siteId?: string; initial?:
     }
   }
 
-  const slugLocked = Boolean(siteId && initial?.status === "published");
-
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
       <Field label="사이트 이름" name="name" required defaultValue={initial?.name} />
-      <Field
-        label="슬러그"
-        name="slug"
-        defaultValue={initial?.slug}
-        required={!siteId}
-        disabled={slugLocked}
-        placeholder="비우면 이름에서 만듭니다"
-      />
-      <Field label="URL" name="url" type="url" required defaultValue={initial?.url} placeholder="https://" />
+      <Field label="URL" name="url" required defaultValue={initial?.url} placeholder="example.com" />
       <label className="block text-sm font-medium">
         카테고리
         <select

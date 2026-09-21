@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { apiFetch } from "@/lib/api";
@@ -15,14 +16,30 @@ type SubmissionRow = {
 };
 
 export default function AdminSubmissionsPage() {
+  const router = useRouter();
   const [items, setItems] = useState<SubmissionRow[]>([]);
   const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState("");
 
   useEffect(() => {
     apiFetch<SubmissionRow[]>("/api/admin/submissions")
       .then(setItems)
       .catch((err) => setError(err instanceof Error ? err.message : "목록을 불러오지 못했습니다."));
   }, []);
+
+  async function remove(id: string) {
+    if (!window.confirm("이 제보를 삭제할까요?")) return;
+    setBusyId(id);
+    setError("");
+    try {
+      await apiFetch(`/api/admin/submissions/${id}`, { method: "DELETE" });
+      setItems((rows) => rows.filter((row) => row.id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
+    } finally {
+      setBusyId("");
+    }
+  }
 
   return (
     <section className="space-y-4">
@@ -41,6 +58,26 @@ export default function AdminSubmissionsPage() {
             <p className="mt-1 break-all text-sm text-muted">{item.url}</p>
             <p className="mt-2 text-sm leading-relaxed">{item.description}</p>
             {item.keywordsText ? <p className="mt-2 text-sm text-muted">키워드: {item.keywordsText}</p> : null}
+            {item.status === "pending" ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busyId === item.id}
+                  onClick={() => router.push(`/admin/sites/new?from=${encodeURIComponent(item.id)}`)}
+                  className="h-9 rounded-lg bg-point px-4 text-sm font-medium text-white disabled:opacity-60"
+                >
+                  등록
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === item.id}
+                  onClick={() => remove(item.id)}
+                  className="h-9 rounded-lg border border-line px-4 text-sm font-medium disabled:opacity-60"
+                >
+                  삭제
+                </button>
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
