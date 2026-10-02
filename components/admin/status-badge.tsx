@@ -5,6 +5,9 @@ const styles: Record<string, string> = {
   approved: "bg-point/10 text-point",
   rejected: "bg-danger/10 text-danger",
   converted: "bg-point/10 text-point",
+  scheduled: "bg-line text-muted",
+  active: "bg-point/10 text-point",
+  ended: "bg-line text-muted",
 };
 
 export function StatusBadge({ status }: { status: string }) {

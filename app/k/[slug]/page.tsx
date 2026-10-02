@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AdApplySlot } from "@/components/site/ad-apply-slot";
 import { AdCard } from "@/components/site/ad-card";
 import { SiteCard, type SiteCardData } from "@/components/site/site-card";
 import { nameFromSlug } from "@/lib/keywords";
@@ -37,12 +38,14 @@ export default async function KeywordLandingPage({ params }: Props) {
   return (
     <section className="mx-auto max-w-[800px] space-y-8">
       <h1 className="text-2xl font-semibold">{landing.name}</h1>
-      {landing.ads.length > 0 ? (
+      {landing.sites.length > 0 ? (
         <div className="space-y-3">
           <p className="text-[13px] text-muted">광고</p>
-          {landing.ads.map((site) => (
-            <AdCard key={site.slug} site={site} />
-          ))}
+          {landing.ads.length > 0 ? (
+            landing.ads.map((site) => <AdCard key={site.slug} site={site} />)
+          ) : (
+            <AdApplySlot keyword={landing.name} />
+          )}
         </div>
       ) : null}
       {landing.sites.length > 0 ? (

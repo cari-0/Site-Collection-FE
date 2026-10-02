@@ -6,6 +6,7 @@ export function ConfirmDialog({
   confirmLabel = "예",
   cancelLabel = "아니오",
   pending,
+  pendingLabel = "삭제 중…",
   onConfirm,
   onCancel,
 }: {
@@ -14,6 +15,7 @@ export function ConfirmDialog({
   confirmLabel?: string;
   cancelLabel?: string;
   pending?: boolean;
+  pendingLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -45,7 +47,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             className="h-10 rounded-lg bg-danger px-4 text-sm font-medium text-white disabled:opacity-60"
           >
-            {pending ? "삭제 중…" : confirmLabel}
+            {pending ? pendingLabel : confirmLabel}
           </button>
         </div>
       </div>

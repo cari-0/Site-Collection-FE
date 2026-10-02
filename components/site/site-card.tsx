@@ -28,7 +28,10 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
       }`}
     >
       {ad ? (
-        <span className="absolute top-3 right-3 rounded bg-ad-badge-bg px-1.5 py-0.5 text-xs font-semibold text-ad-badge">
+        <span
+          className="absolute top-3 right-3 rounded bg-ad-badge-bg px-1.5 py-0.5 text-xs font-semibold text-ad-badge"
+          aria-label="광고"
+        >
           AD
         </span>
       ) : null}
