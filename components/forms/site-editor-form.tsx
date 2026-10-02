@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { apiFetch, apiUpload } from "@/lib/api";
 
 type Category = { id: string; name: string };
@@ -35,6 +36,7 @@ export function SiteEditorForm({
   const [preview, setPreview] = useState(initial?.imageUrl ?? "");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [askDelete, setAskDelete] = useState(false);
 
   useEffect(() => {
     apiFetch<Category[]>("/api/admin/categories")
@@ -140,9 +142,43 @@ export function SiteEditorForm({
         </select>
       </label>
       {error ? <p className="text-sm text-danger">{error}</p> : null}
-      <button type="submit" disabled={pending} className="h-11 rounded-lg bg-point px-5 font-medium text-white disabled:opacity-60">
-        {pending ? "저장 중…" : "저장"}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <button type="submit" disabled={pending} className="h-11 rounded-lg bg-point px-5 font-medium text-white disabled:opacity-60">
+          {pending ? "저장 중…" : "저장"}
+        </button>
+        {siteId ? (
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => setAskDelete(true)}
+            className="h-11 rounded-lg border border-line px-5 font-medium text-danger disabled:opacity-60"
+          >
+            삭제
+          </button>
+        ) : null}
+      </div>
+      {askDelete && siteId ? (
+        <ConfirmDialog
+          title="사이트를 삭제할까요?"
+          message={`${initial?.name ?? "이 사이트"}을(를) 삭제하면 목록과 검색에서 바로 사라집니다. 되돌릴 수 없습니다.`}
+          pending={pending}
+          onConfirm={async () => {
+            setPending(true);
+            setError("");
+            try {
+              await apiFetch(`/api/admin/sites/${siteId}`, { method: "DELETE" });
+              router.push("/admin/sites");
+              router.refresh();
+            } catch (err) {
+              setError(err instanceof Error ? err.message : "삭제에 실패했습니다.");
+              setAskDelete(false);
+            } finally {
+              setPending(false);
+            }
+          }}
+          onCancel={() => (pending ? undefined : setAskDelete(false))}
+        />
+      ) : null}
     </form>
   );
 }
