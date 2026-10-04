@@ -1,4 +1,7 @@
+"use client";
+
 import { HeartButton } from "@/components/site/heart-button";
+import { reportSiteOpen } from "@/lib/site-open";
 
 type SiteDetailProps = {
   slug: string;
@@ -44,6 +47,7 @@ export function SiteDetail({
           href={url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => reportSiteOpen(slug)}
           className="inline-flex h-11 items-center rounded-lg bg-point px-5 font-medium text-white"
         >
           사이트로 이동

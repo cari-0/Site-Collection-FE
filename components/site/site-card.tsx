@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { HeartButton } from "@/components/site/heart-button";
+import { reportSiteOpen } from "@/lib/site-open";
 
 export type SiteCardData = {
   slug: string;
@@ -50,7 +53,11 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
           </div>
         </div>
         <div className="min-w-0 flex-1">
-          <Link href={`/sites/${encodeURIComponent(site.slug)}`} className="block">
+          <Link
+            href={`/sites/${encodeURIComponent(site.slug)}`}
+            className="block"
+            onClick={() => reportSiteOpen(site.slug)}
+          >
             <p className="text-xs text-muted">
               {site.category}
               {tags.length > 0 ? ` · ${tags.map((tag) => `#${tag}`).join(" ")}` : ""}
@@ -62,6 +69,7 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
             href={site.url}
             target="_blank"
             rel={ad ? "noopener sponsored" : "noopener noreferrer"}
+            onClick={() => reportSiteOpen(site.slug)}
             className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-surface px-3 text-sm font-medium text-point sm:w-auto"
           >
             바로가기

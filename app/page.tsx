@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { HomeFeed } from "@/components/home/home-feed";
 import { SearchForm } from "@/components/layout/search-form";
-import { SiteCard, type SiteCardData } from "@/components/site/site-card";
+import { type SiteCardData } from "@/components/site/site-card";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { publicApi } from "@/lib/public-api";
 
@@ -28,34 +28,7 @@ export default async function HomePage() {
       <div className="mt-8 flex w-full justify-center">
         <SearchForm size="hero" />
       </div>
-      {keywords.length > 0 ? (
-        <div className="mt-12 w-full">
-          <h2 className="text-[13px] font-medium tracking-wide text-muted">지금 많이 찾는</h2>
-          <ol className="mt-3 flex flex-wrap justify-center gap-2">
-            {keywords.map((keyword, index) => (
-              <li key={keyword.slug}>
-                <Link
-                  href={`/k/${encodeURIComponent(keyword.slug)}`}
-                  className="inline-flex h-9 items-center rounded-full border border-line bg-surface px-3.5 text-sm hover:border-point hover:text-point"
-                >
-                  <span className="mr-2 tabular-nums font-semibold text-point">{index + 1}</span>
-                  {keyword.name}
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ) : null}
-      {sites.length > 0 ? (
-        <div className="mt-12 w-full text-left">
-          <h2 className="text-center text-[13px] font-medium tracking-wide text-muted">추천 사이트</h2>
-          <div className="mt-3 space-y-3">
-            {sites.map((site) => (
-              <SiteCard key={site.slug} site={site} />
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <HomeFeed initial={{ keywords, sites }} />
     </section>
   );
 }

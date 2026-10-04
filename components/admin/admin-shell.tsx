@@ -11,7 +11,7 @@ const nav = [
   { href: "/admin/sites", label: "사이트" },
   { href: "/admin/submissions", label: "제보" },
   { href: "/admin/ads", label: "광고" },
-  { href: "/admin/featured", label: "추천" },
+  { href: "/admin/featured", label: "인기 검색어" },
 ];
 
 export function AdminShell({ children }: { children: ReactNode }) {
