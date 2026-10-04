@@ -26,7 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const site = await loadSite(slug);
   if (!site) return { title: decodeURIComponent(slug) };
-  return { title: site.name, description: site.description };
+  return {
+    title: site.name,
+    description: site.description,
+    openGraph: { title: site.name, description: site.description },
+  };
 }
 
 export default async function SiteDetailPage({ params }: Props) {

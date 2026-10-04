@@ -20,9 +20,11 @@ type Landing = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const name = nameFromSlug(slug);
+  const description = `${name}에 맞는 사이트를 모았습니다.`;
   return {
     title: name,
-    description: `${name}에 맞는 사이트를 모았습니다.`,
+    description,
+    openGraph: { title: name, description },
   };
 }
 
