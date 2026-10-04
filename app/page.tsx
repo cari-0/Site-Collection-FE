@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { HomeFeed } from "@/components/home/home-feed";
 import { SearchForm } from "@/components/layout/search-form";
 import { type SiteCardData } from "@/components/site/site-card";
@@ -9,7 +10,22 @@ type Featured = {
   sites: SiteCardData[];
 };
 
-export default async function HomePage() {
+export default function HomePage() {
+  return (
+    <section className="mx-auto flex max-w-[720px] flex-col items-center pt-10 text-center">
+      <h1 className="text-4xl font-semibold tracking-tight">{SITE_NAME}</h1>
+      <p className="mt-3 text-muted">{SITE_TAGLINE}</p>
+      <div className="mt-8 flex w-full justify-center">
+        <SearchForm size="hero" />
+      </div>
+      <Suspense>
+        <HomeFeedLoader />
+      </Suspense>
+    </section>
+  );
+}
+
+async function HomeFeedLoader() {
   let keywords: Featured["keywords"] = [];
   let sites: Featured["sites"] = [];
   try {
@@ -20,15 +36,5 @@ export default async function HomePage() {
     keywords = [];
     sites = [];
   }
-
-  return (
-    <section className="mx-auto flex max-w-[720px] flex-col items-center pt-10 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">{SITE_NAME}</h1>
-      <p className="mt-3 text-muted">{SITE_TAGLINE}</p>
-      <div className="mt-8 flex w-full justify-center">
-        <SearchForm size="hero" />
-      </div>
-      <HomeFeed initial={{ keywords, sites }} />
-    </section>
-  );
+  return <HomeFeed initial={{ keywords, sites }} />;
 }

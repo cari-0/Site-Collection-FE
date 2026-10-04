@@ -43,7 +43,15 @@ export function SiteCard({ site, ad = false }: SiteCardProps) {
           <div className="flex h-full w-full items-center justify-center text-xl font-semibold text-point">
             {site.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={site.imageUrl} alt="" className="h-full w-full object-cover" />
+              <img
+                src={site.imageUrl}
+                alt=""
+                width={96}
+                height={96}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
             ) : (
               initial
             )}

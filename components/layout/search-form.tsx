@@ -39,7 +39,7 @@ export function SearchForm({ size = "header", defaultValue = "" }: SearchFormPro
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="찾고 싶은 사이트를 검색하세요"
-        className={`min-w-0 flex-1 border-0 bg-transparent text-foreground outline-none placeholder:text-muted ${
+        className={`min-w-0 flex-1 border-0 bg-transparent text-foreground outline-none focus:outline-none focus-visible:outline-none placeholder:text-muted ${
           isHero ? "text-base" : "text-sm"
         }`}
       />

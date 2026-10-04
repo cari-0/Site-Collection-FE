@@ -35,9 +35,13 @@ body {
 
 a:focus-visible,
 button:focus-visible,
-input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
+  outline: 2px solid var(--point);
+  outline-offset: 2px;
+}
+
+input:focus-visible:not([name="q"]) {
   outline: 2px solid var(--point);
   outline-offset: 2px;
 }
