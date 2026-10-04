@@ -185,7 +185,6 @@ export default function AdminAdsPage() {
                         await apiFetch(`/api/admin/ads/slots/${slot.id}`, {
                           method: "PATCH",
                           body: JSON.stringify({
-                            keyword: body.keyword,
                             startsOn: body.startsOn,
                             endsOn: body.endsOn,
                             priority: body.priority,
