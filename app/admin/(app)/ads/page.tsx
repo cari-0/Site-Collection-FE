@@ -30,7 +30,7 @@ type AdSlotRow = {
   keyword: { name: string; slug: string };
 };
 
-type SiteRow = { id: string; name: string; status: string };
+type SiteRow = { id: string; name: string; status: string; keywordsText?: string };
 
 function todayYmd() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
@@ -331,11 +331,11 @@ function TabButton({
 
 function SlotForm({
   sites = [],
-  defaultKeyword = "",
   defaultPeriod = "days7",
   defaultStartsOn,
   defaultEndsOn,
   defaultPriority = 0,
+  defaultKeyword = "",
   requireSite,
   hideSite,
   pending,
@@ -351,18 +351,28 @@ function SlotForm({
   requireSite?: boolean;
   hideSite?: boolean;
   pending?: boolean;
-  onSubmit: (body: { keyword: string; startsOn: string; endsOn: string; priority: number; siteId?: string }) => Promise<void>;
+  onSubmit: (body: { startsOn: string; endsOn: string; priority: number; siteId?: string }) => Promise<void>;
   onCancel: () => void;
 }) {
   const start = useMemo(() => defaultStartsOn || todayYmd(), [defaultStartsOn]);
   const endDefault = defaultEndsOn || (defaultPeriod === "days30" ? addDays(start, 29) : addDays(start, 6));
+  const [siteQuery, setSiteQuery] = useState("");
+  const [siteId, setSiteId] = useState("");
+  const selected = sites.find((site) => site.id === siteId);
+  const matches = useMemo(() => {
+    const needle = siteQuery.trim().toLowerCase();
+    if (!needle) return [];
+    return sites.filter((site) => site.name.toLowerCase().includes(needle)).slice(0, 12);
+  }, [sites, siteQuery]);
+  const keywordLabel = hideSite
+    ? defaultKeyword
+    : selected?.keywordsText || (requireSite ? "" : "사이트를 고르면 자동으로 들어갑니다");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (requireSite && !siteId) return;
     const form = new FormData(event.currentTarget);
-    const siteId = String(form.get("siteId") ?? "");
     await onSubmit({
-      keyword: String(form.get("keyword") ?? ""),
       startsOn: String(form.get("startsOn") ?? ""),
       endsOn: String(form.get("endsOn") ?? ""),
       priority: Number(form.get("priority") ?? 0),
@@ -372,10 +382,57 @@ function SlotForm({
 
   return (
     <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-      <label className="block text-sm font-medium">
-        키워드
-        <input name="keyword" required defaultValue={defaultKeyword} className="mt-1 w-full rounded-lg border border-line px-3 py-2" />
-      </label>
+      {hideSite ? null : (
+        <div>
+          <p className="text-sm font-medium">사이트 {requireSite ? "" : "(비우면 문의 URL로 연결/등록)"}</p>
+          {selected ? (
+            <div className="mt-1 flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2">
+              <span className="text-sm">{selected.name}</span>
+              <button type="button" className="text-sm text-muted" onClick={() => { setSiteId(""); setSiteQuery(""); }}>
+                다시 찾기
+              </button>
+            </div>
+          ) : (
+            <div className="relative mt-1">
+              <input
+                value={siteQuery}
+                onChange={(event) => setSiteQuery(event.target.value)}
+                placeholder="사이트 이름 검색"
+                className="w-full rounded-lg border border-line px-3 py-2"
+              />
+              {siteQuery.trim() ? (
+                <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-line bg-surface shadow-sm">
+                  {matches.length === 0 ? (
+                    <li className="px-3 py-2 text-sm text-muted">찾는 사이트가 없습니다.</li>
+                  ) : (
+                    matches.map((site) => (
+                      <li key={site.id}>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-ad-bg"
+                          onClick={() => {
+                            setSiteId(site.id);
+                            setSiteQuery("");
+                          }}
+                        >
+                          <span>{site.name}</span>
+                          {site.keywordsText ? (
+                            <span className="mt-0.5 block text-xs text-muted">{site.keywordsText}</span>
+                          ) : null}
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              ) : null}
+            </div>
+          )}
+        </div>
+      )}
+      <p className="text-sm">
+        <span className="font-medium">키워드</span>
+        <span className="mt-1 block text-muted">{keywordLabel || "이 사이트에 키워드가 없습니다."}</span>
+      </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm font-medium">
           시작일
@@ -390,24 +447,15 @@ function SlotForm({
         우선순위
         <input name="priority" type="number" min={0} defaultValue={defaultPriority} className="mt-1 w-full rounded-lg border border-line px-3 py-2" />
       </label>
-      {hideSite ? null : (
-      <label className="block text-sm font-medium">
-        사이트 {requireSite ? "" : "(비우면 문의 URL로 연결/등록)"}
-        <select name="siteId" required={requireSite} className="mt-1 w-full rounded-lg border border-line px-3 py-2">
-          <option value="">{requireSite ? "선택" : "자동"}</option>
-          {sites.map((site) => (
-            <option key={site.id} value={site.id}>
-              {site.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      )}
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onCancel} className="h-10 rounded-lg border border-line px-4 text-sm">
           취소
         </button>
-        <button type="submit" disabled={pending} className="h-10 rounded-lg bg-point px-4 text-sm font-medium text-white disabled:opacity-60">
+        <button
+          type="submit"
+          disabled={pending || (requireSite && !siteId) || Boolean(selected && !selected.keywordsText)}
+          className="h-10 rounded-lg bg-point px-4 text-sm font-medium text-white disabled:opacity-60"
+        >
           {pending ? "저장 중…" : "저장"}
         </button>
       </div>
