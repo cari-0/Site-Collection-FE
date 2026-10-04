@@ -1,19 +1,24 @@
 import Link from "next/link";
 import { SearchForm } from "@/components/layout/search-form";
+import { SiteCard, type SiteCardData } from "@/components/site/site-card";
 import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import { publicApi } from "@/lib/public-api";
 
 type Featured = {
   keywords: { slug: string; name: string }[];
+  sites: SiteCardData[];
 };
 
 export default async function HomePage() {
   let keywords: Featured["keywords"] = [];
+  let sites: Featured["sites"] = [];
   try {
     const featured = await publicApi<Featured>("/api/featured");
     keywords = featured.keywords;
+    sites = (featured.sites ?? []).slice(0, 6);
   } catch {
     keywords = [];
+    sites = [];
   }
 
   return (
@@ -39,6 +44,16 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
+        </div>
+      ) : null}
+      {sites.length > 0 ? (
+        <div className="mt-12 w-full text-left">
+          <h2 className="text-center text-[13px] font-medium tracking-wide text-muted">추천 사이트</h2>
+          <div className="mt-3 space-y-3">
+            {sites.map((site) => (
+              <SiteCard key={site.slug} site={site} />
+            ))}
+          </div>
         </div>
       ) : null}
     </section>
